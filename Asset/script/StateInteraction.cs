@@ -58,8 +58,8 @@ namespace VRTK.Examples
                     Destroy(o_state);
                 }
                 GameObject O = Instantiate(gameObject, spawnPos_o.position, Quaternion.identity); //change rotation if needed;
-                O.transform.localScale = transform.parent.localScale;
-                O.transform.localScale *= 2;
+                O.transform.localScale = transform.localScale;
+                O.transform.localScale *= transform.parent.localScale.x * 3;
                 O.transform.rotation = Quaternion.Euler(0f, -50f, 0f);
                 Destroy(O.GetComponent<StateInteraction>());
                 Global.GetComponent<Monitor>().origin = O;
@@ -102,9 +102,8 @@ namespace VRTK.Examples
                 }
                 Global.GetComponent<Monitor>().o_node.SetActive(false);
                 GameObject D = Instantiate(gameObject, spawnPos_d.position, Quaternion.identity); //change rotation if needed;
-                D.transform.localScale = transform.parent.localScale;
-
-                D.transform.localScale *= 2;
+                D.transform.localScale = transform.localScale;
+                D.transform.localScale *= transform.parent.localScale.x * 3;
                 D.transform.rotation = Quaternion.Euler(0f, 50f, 0f);
                 Destroy(D.GetComponent<StateInteraction>());
                 Global.GetComponent<Monitor>().destination = D;
