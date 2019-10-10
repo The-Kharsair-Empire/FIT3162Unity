@@ -26,8 +26,9 @@ namespace VRTK.Examples
         public GameObject Global;
         public string state_name;
         public bool interactable;
+        public Instruction inScript;
 
-        public void activateStateInteraction(GameObject Global, Transform spawnPos_o, Transform spawnPos_d, Dictionary<string, List<Arc>> arc_info, Dictionary<string, GameObject> slic_nodeInfo_Pair)
+        public void activateStateInteraction(GameObject Global, Transform spawnPos_o, Transform spawnPos_d, Dictionary<string, List<Arc>> arc_info, Dictionary<string, GameObject> slic_nodeInfo_Pair, Instruction inScript)
         {
             this.spawnPos_o = spawnPos_o;
             this.spawnPos_d = spawnPos_d;
@@ -37,6 +38,7 @@ namespace VRTK.Examples
             state_name = gameObject.name;
             gameObject.AddComponent<checkLabel>().setLabel("Country");
             interactable = true;
+            this.inScript = inScript;
         }
 
 
@@ -52,6 +54,7 @@ namespace VRTK.Examples
 
             if (o_node == null)
             {
+                inScript.changeText(1);
                 
                 if (o_state != null)
                 {
@@ -79,7 +82,7 @@ namespace VRTK.Examples
                                                                  //child.gameObject.AddComponent<>(); add interaction component, rigid body etc.
                                                                  //add node interaction script
 
-                    child.gameObject.AddComponent<ONodeInteraction>().activateNodeInteraction(slic_nodeInfo_Pair, Global);
+                    child.gameObject.AddComponent<ONodeInteraction>().activateNodeInteraction(slic_nodeInfo_Pair, Global, inScript);
                     List<Arc> destinations;
                     if (arc_info.TryGetValue(child.GetComponent<Node>().slic_code, out destinations))
                     {
@@ -96,6 +99,7 @@ namespace VRTK.Examples
             }
             else if(d_node == null)
             {
+                inScript.changeText(3);
                 if (d_state != null)
                 {
                     Destroy(d_state);
@@ -127,7 +131,7 @@ namespace VRTK.Examples
                                                                  //child.gameObject.AddComponent<>(); add interaction component, rigid body etc.
                                                                  //add node interaction script
 
-                    child.gameObject.AddComponent<DNodeInteraction>().activateNodeInteraction(slic_nodeInfo_Pair, Global);
+                    child.gameObject.AddComponent<DNodeInteraction>().activateNodeInteraction(slic_nodeInfo_Pair, Global, inScript);
                    
                 }
 

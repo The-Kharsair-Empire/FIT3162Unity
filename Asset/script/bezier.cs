@@ -14,14 +14,14 @@ public class bezier : MonoBehaviour
     private int numPoints = 50;
     private Vector3[] positions = new Vector3[50];
 
-    private Color startColor = Color.blue;
-    private Color endColor = Color.red;
-
     private Transform dest;
     public float volume;
     private float volume_offset;
     private float height = 1f;
     private float radius_offset = 0.01f;
+    private Color col_o;
+    private Color col_d;
+    private float width;
 
     public void turnOff()
     {
@@ -38,11 +38,14 @@ public class bezier : MonoBehaviour
     }
 
     // Start is called before the first frame update
-    public void activate(GameObject point2, float volume)
+    public void activate(GameObject point2, float volume, Color col_o,  Color col_d, float width)
     {
         
         this.point2 = point2;
         this.volume = volume;
+        this.col_o = col_o;
+        this.col_d = col_d;
+        this.width = width;
         volume_offset = Maximum_rollOff(volume);
         lineRenderer = gameObject.GetComponent<LineRenderer>();
         lineRenderer.useWorldSpace = false;
@@ -76,15 +79,23 @@ public class bezier : MonoBehaviour
 
         // set line size
         lineRenderer.SetPositions(positions);
-        lineRenderer.startWidth = volume_offset*radius_offset;
-        lineRenderer.endWidth = volume_offset*radius_offset;
+        if (width == -1f) {
+            lineRenderer.startWidth = volume_offset * radius_offset;
+            lineRenderer.endWidth = volume_offset * radius_offset;
+        }
+        else
+        {
+            lineRenderer.startWidth = width * radius_offset;
+            lineRenderer.endWidth = width * radius_offset;
+        }
+        
 
         // set gradient (defines start and end of OD link)
         lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
         float alpha = 1.0f;
         Gradient gradient = new Gradient();
         gradient.SetKeys(
-            new GradientColorKey[] { new GradientColorKey(Color.blue, 0.0f), new GradientColorKey(Color.red, 1.0f) },
+            new GradientColorKey[] { new GradientColorKey(col_o, 0.0f), new GradientColorKey(col_d, 1.0f) },
             new GradientAlphaKey[] { new GradientAlphaKey(alpha, 0.0f), new GradientAlphaKey(alpha, 1.0f) }
             );
         lineRenderer.colorGradient = gradient;

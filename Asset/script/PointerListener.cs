@@ -3,6 +3,7 @@
     using System;
     using UnityEngine;
     using VRTK.Highlighters;
+    using nodeTemplate;
 
     public class PointerListener : MonoBehaviour
     {
@@ -28,6 +29,8 @@
         private float speedMagnitude = 0f;
         private string targetLabel;
         private Monitor GlobalMonitor;
+        public GameObject instructionCanvas;
+        private Instruction instructionScript;
 
         protected virtual void OnEnable()
         {
@@ -39,12 +42,12 @@
                 controllerEvent.TouchpadPressed += ControllerEvent_TouchpadPressed;
                 controllerEvent.GripClicked += ControllerEvent_GripClicked;
                 interact = pointer.GetComponent<VRTK_InteractGrab>();
-                interact.ControllerGrabInteractableObject += Interact_ControllerGrabInteractableObject;
                 interact.GrabButtonReleased += Interact_GrabButtonReleased;
                 pointer.DestinationMarkerEnter += DestinationMarkerEnter;
                 pointer.DestinationMarkerHover += DestinationMarkerHover;
                 pointer.DestinationMarkerExit += DestinationMarkerExit;
                 pointer.DestinationMarkerSet += DestinationMarkerSet;
+                instructionScript = instructionCanvas.GetComponent<Instruction>();
             }
             else
             {
@@ -57,7 +60,6 @@
             if (pointer != null)
             {
                 //controllerEvent.TouchpadPressed -= ControllerEvent_TouchpadPressed;
-                interact.ControllerGrabInteractableObject -= Interact_ControllerGrabInteractableObject;
                 interact.GrabButtonReleased -= Interact_GrabButtonReleased;
                 pointer.DestinationMarkerEnter -= DestinationMarkerEnter;
                 pointer.DestinationMarkerHover -= DestinationMarkerHover;
@@ -74,7 +76,7 @@
 
         private void Interact_GrabButtonReleased(object sender, ControllerInteractionEventArgs e)
         {
-            if (targetLabel == "O_State" || targetLabel == "D_State")
+            if (targetLabel == "O_State" || targetLabel == "D_State" || targetLabel == "Arc")
             {
                 controllerSpeed = VRTK_DeviceFinder.GetControllerVelocity(controllerReference) * impactMagnifier;
                 speedMagnitude = controllerSpeed.magnitude;
@@ -88,6 +90,7 @@
                     Destroy(theTarget, 2);
                     if (targetLabel == "O_State")
                     {
+                        instructionScript.changeText(0);
                         // clear OD links attached to Origin node, and turn off nodes on country map
                         GlobalMonitor.hideArcs(GlobalMonitor.o_node);
                         GlobalMonitor.o_node.GetComponent<MeshRenderer>().enabled = false;
@@ -107,10 +110,12 @@
                             Destroy(GlobalMonitor.destination, 2);
                             GlobalMonitor.destination = null;
                         }
-                        
+                        GlobalMonitor.origin_text = null;
+                        GlobalMonitor.destination_text = null;
                     }
                     else if (targetLabel == "D_State")
                     {
+                        instructionScript.changeText(2);
                         Transform o = GlobalMonitor.o_node.transform;
                         if (GlobalMonitor.d_node != null)
                         {
@@ -124,7 +129,13 @@
                         {
                             bezierContainer.GetComponent<bezier>().turnOn();
                         }
+
+                        GlobalMonitor.destination_text = null;
                         // turn on all bezier curves on origin node, and all destination nodes on country map
+                    }
+                    else if (targetLabel == "Arc")
+                    {
+                        GlobalMonitor.clearArc();
                     }
 
                     Transform US = GameObject.Find("/America").transform;
@@ -136,31 +147,7 @@
 
 
                 }
-                //Debug.Log(rigi.velocity);  // local or global velocity?
             }
-            //rigi.AddForce(rigi.velocity * 100);
-            //if (targetLabel == "Second")
-            //{
-            //    rigi = theTarget.GetComponent<Rigidbody>();
-            //    controllerSpeed = VRTK_DeviceFinder.GetControllerVelocity(controllerReference).magnitude * impactMagnifier;
-            //    if (controllerSpeed > 60)
-            //    {
-            //        rigi.isKinematic = false;
-            //        rigi.useGravity = true;
-            //        Destroy(theTarget, 10);
-            //    }
-            //}
-            //if (targetLabel == "State")
-            //{
-            //    rigi = theTarget.GetComponent<Rigidbody>();
-            //    controllerSpeed = VRTK_DeviceFinder.GetControllerVelocity(controllerReference).magnitude * impactMagnifier;
-            //    if (controllerSpeed > 60)
-            //    {
-            //        rigi.isKinematic = false;
-            //        rigi.useGravity = true;
-            //        Destroy(theTarget, 10);
-            //    }
-            //}
         }
 
         private void ControllerEvent_TouchpadPressed(object sender, ControllerInteractionEventArgs e)
@@ -177,14 +164,24 @@
 
                 if(targetLabel == "OStateNode" && theTarget.GetComponent<MeshRenderer>().enabled == true)
                 {
+                    if (GlobalMonitor.origin_text != null)
+                    {
+                        Destroy(GlobalMonitor.origin_text);
+                    }
                     theTarget.GetComponent<ONodeInteraction>().myInteract();
+                    GlobalMonitor.origin_text = theTarget.GetComponent<Node>().showFloatingText( "origin_info");
                 }
 
                 if(targetLabel == "DStateNode" && theTarget.GetComponent<MeshRenderer>().enabled == true)
                 {
+                    if (GlobalMonitor.destination_text != null)
+                    {
+                        Destroy(GlobalMonitor.destination_text);
+                    }
                     theTarget.GetComponent<DNodeInteraction>().myInteract();
 
                     Transform US = GameObject.Find("/America").transform;
+                    GlobalMonitor.destination_text = theTarget.GetComponent<Node>().showFloatingText( "destination_info");
 
                     foreach (Transform eachState in US)
                     {
@@ -194,40 +191,33 @@
             }
         }
 
-        private void Interact_ControllerGrabInteractableObject(object sender, ObjectInteractEventArgs e)
-        {
-            //    //if (targetLabel == "Second")
-            //    //{
-            //    //    second = e.target.GetComponent<second>();
-            //    //    second.monitorVelocity(controllerReference);
-            //    //}
-            //    //if (targetLabel == "State")
-            //    //{
-            //    //    aa = e.target.GetComponent<aa>();
-            //    //    aa.monitorVelocity(controllerReference);
-            //    //}
-            //    //Debug.Log(e.target.name);
-            //    //controllerSpeed = VRTK_DeviceFinder.GetControllerVelocity(controllerReference).magnitude * impactMagnifier;
-            //    //Debug.Log(VRTK_DeviceFinder.GetControllerVelocity(controllerReference).magnitude * impactMagnifier);
-
-
-            //    // throw new NotImplementedException();
-        }
-
         protected virtual void DestinationMarkerEnter(object sender, DestinationMarkerEventArgs e)
         {
             //if (logEnterEvent)
             //{
             //    DebugLogger(VRTK_ControllerReference.GetRealIndex(e.controllerReference), "POINTER ENTER", e.target, e.raycastHit, e.distance, e.destinationPosition);
             //}
+            
             controllerReference = VRTK_ControllerReference.GetControllerReference(controller);
             theTarget = e.target.gameObject;
+            
             checkLabel labelComponent = theTarget.GetComponent<checkLabel>();
             if (labelComponent != null)
             {
                 targetLabel = labelComponent.getLabel();
             }
-           
+
+            //if (targetLabel == "OStateNode") {
+            //    theTarget.GetComponent<Node>().showFloatingText(controller.transform, "origin_info");
+            //}
+
+            //if (targetLabel == "DStateNode")
+            //{
+            //    theTarget.GetComponent<Node>().showFloatingText(controller.transform, "destination_info");
+            //}
+
+
+
 
             ToggleHighlight(e.target, hoverColor);
         }
@@ -242,10 +232,15 @@
 
         protected virtual void DestinationMarkerExit(object sender, DestinationMarkerEventArgs e)
         {
+
             ToggleHighlight(e.target, Color.clear);
             //if (logExitEvent)
             //{
             //    DebugLogger(VRTK_ControllerReference.GetRealIndex(e.controllerReference), "POINTER EXIT", e.target, e.raycastHit, e.distance, e.destinationPosition);
+            //}
+            //if (targetLabel == "OStateNode" || targetLabel == "DStateNode")
+            //{
+            //    theTarget.GetComponent<Node>().del();
             //}
             controllerReference = null;
             theTarget = null;

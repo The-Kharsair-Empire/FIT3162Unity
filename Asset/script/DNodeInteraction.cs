@@ -14,8 +14,9 @@ public class DNodeInteraction : MonoBehaviour
 
     private Dictionary<string, GameObject> slic_nodeInfo_Pair;
     private GameObject Global;
+    public Instruction inScript;
 
-    public void activateNodeInteraction(Dictionary<string, GameObject> slic_node, GameObject Global)
+    public void activateNodeInteraction(Dictionary<string, GameObject> slic_node, GameObject Global, Instruction inScript)
     {
 
         this.slic_nodeInfo_Pair = slic_node;
@@ -23,10 +24,12 @@ public class DNodeInteraction : MonoBehaviour
         gameObject.AddComponent<checkLabel>().setLabel("DStateNode");
         //Debug.Log(this.slic_nodeInfo_Pair);
         //Debug.Log(slic_nodeInfo_Pair);
+        this.inScript = inScript;
     }
 
     public void myInteract()
     {
+        inScript.changeText(4);
         GameObject o_node = Global.GetComponent<Monitor>().o_node;
         //GameObject last_d_node = preprocessor.GetComponent<Preprocessor>().d_node;
 

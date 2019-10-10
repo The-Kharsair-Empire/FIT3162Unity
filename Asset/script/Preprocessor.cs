@@ -22,6 +22,12 @@ public class Preprocessor : MonoBehaviour
     
 
     public Dictionary<string, List<Arc>> arc_info;
+    public Dictionary<string, List<string>> path_info;
+
+    public GameObject instructionCanvas;
+    private Instruction instructionScript;
+
+    public GameObject FloatingTextPrefab;
 
     //Dictionary<string, Vector3> statePos;
     // Start is called before the first frame update
@@ -30,9 +36,12 @@ public class Preprocessor : MonoBehaviour
         string[] rows = node_data.text.Split(new char[] { '\n' });
         string[] row;
 
+        instructionScript = instructionCanvas.GetComponent<Instruction>();
+
         stateAndItsNodes = new Dictionary<string, List<GameObject>>();
         arc_info = new Dictionary<string, List<Arc>>();
         slic_nodeInfo_Pair = new Dictionary<string, GameObject>();
+        path_info = new Dictionary<string, List<string>>();
         Transform US = GameObject.Find("/America").transform;
        
 
@@ -47,7 +56,7 @@ public class Preprocessor : MonoBehaviour
 
 
 
-            a_node.AddComponent<Node>().setNodeInfo(row[0].Replace("\"", ""), row[1].Replace("\"", ""), row[2].Replace("\"", ""), row[3].Replace("\"", ""), row[4].Replace("\"", ""), row[5].Replace("\"", ""), int.Parse(row[6]), float.Parse(row[7]), float.Parse(row[8]));
+            a_node.AddComponent<Node>().setNodeInfo(row[0].Replace("\"", ""), row[1].Replace("\"", ""), row[2].Replace("\"", ""), row[3].Replace("\"", ""), row[4].Replace("\"", ""), row[5].Replace("\"", ""), int.Parse(row[6]), float.Parse(row[7]), float.Parse(row[8]), FloatingTextPrefab);
             //nodeList.Add(a_node);
 
             List<GameObject> nodesInState;
@@ -110,16 +119,27 @@ public class Preprocessor : MonoBehaviour
                 arc_info.Add(arc[0].Replace("\"", ""), destList);
             }
 
+            string OD = arc[0].Replace("\"", "") + "-" + arc[1].Replace("\"", "");
+
+            List<string> pth = new List<string>(); 
+            for (int j = 6; j < arc.Length; j++)
+            {
+                if (arc[j].Replace("\"", "") != "NA") {
+                    pth.Add(arc[j].Replace("\"", ""));
+                }
+                
+            }
+            path_info.Add(OD, pth);
         }
 
         //State_pos stateInfoManager = new State_pos();
         //stateInfoManager.getStatePos();
         //List<string> stateList = stateInfoManager.stateList;
-        gameObject.GetComponent<Monitor>().activate(slic_nodeInfo_Pair);
+        gameObject.GetComponent<Monitor>().activate(slic_nodeInfo_Pair, path_info);
 
         foreach(Transform each_state in US)
         {
-            each_state.gameObject.AddComponent<StateInteraction>().activateStateInteraction(gameObject, spawnPos_o, spawnPos_d, arc_info, slic_nodeInfo_Pair);
+            each_state.gameObject.AddComponent<StateInteraction>().activateStateInteraction(gameObject, spawnPos_o, spawnPos_d, arc_info, slic_nodeInfo_Pair, instructionScript);
 
             //add extra component to this state
         }
