@@ -41,7 +41,7 @@ namespace nodeTemplate {
             this.start = start/100;
             this.FloatingTextPrefab = FloatingTextPrefab;
             this.info = "SLIC code: " + slic_code + "\n facility name: " + slic_name + "\n facility type: " + slic_type + "\n optyp: " + optyp + "\n sort: " +
-                sort + "\n capacity: " + cap + "\n span: " + span + "\n start time: " + start;
+                sort + "\n capacity: " + cap + "\n span: " + span + "\n start time: " + start +"\n";
             //this.isOnState = isOnState;
         }
 
@@ -79,7 +79,7 @@ namespace nodeTemplate {
             textObject = Instantiate(FloatingTextPrefab, transform.position, Quaternion.identity);
             //textObject.transform.SetParent(null);
             textObject.GetComponent<TextMesh>().text = info; // replace with TextAsset text_file
-            textObject.GetComponent<TextMesh>().color = Color.black;
+            textObject.GetComponent<TextMesh>().color = Color.grey;
             textObject.GetComponent<TextMesh>().fontSize = 100;
             textObject.transform.localScale = new Vector3(0.007f, 0.007f, 0.007f);
             //textObject.transform.Rotate(0, 0, 0, Space.World);

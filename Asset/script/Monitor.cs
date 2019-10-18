@@ -41,23 +41,26 @@ namespace VRTK.Examples
 
         public void drawArcs(GameObject cor_node, List<Arc> destinations)
         {
-
-            foreach (Arc a_arc in destinations)
+            if (destinations != null)
             {
-                string d = a_arc.d;
-                GameObject d_node;
 
-                if (slic_nodeInfo_Pair.TryGetValue(d, out d_node))
+                foreach (Arc a_arc in destinations)
                 {
-      
-                    GameObject bezierContainer = new GameObject();
-                    bezierContainer.transform.parent = cor_node.transform;
-                    bezierContainer.name = d;
-                    bezierContainer.AddComponent<LineRenderer>();
-                    bezierContainer.AddComponent<bezier>().activate(d_node, a_arc.vol, Color.blue, Color.red, -1f);
-                    d_node.GetComponent<MeshRenderer>().enabled = true;
-                }
+                    string d = a_arc.d;
+                    GameObject d_node;
 
+                    if (slic_nodeInfo_Pair.TryGetValue(d, out d_node))
+                    {
+
+                        GameObject bezierContainer = new GameObject();
+                        bezierContainer.transform.parent = cor_node.transform;
+                        bezierContainer.name = d;
+                        bezierContainer.AddComponent<LineRenderer>();
+                        bezierContainer.AddComponent<bezier>().activate(d_node, a_arc.vol, Color.blue, Color.red, -1f);
+                        d_node.GetComponent<MeshRenderer>().enabled = true;
+                    }
+
+                }
             }
         }
 
@@ -114,17 +117,20 @@ namespace VRTK.Examples
                 }
 
                 GameObject newONode = Instantiate(o_node, o_node.transform.position, o_node.transform.rotation);
-                //GameObject newDNode = Instantiate(d_node, d_node.transform.position, d_node.transform.rotation);
+                GameObject newDNode = Instantiate(d_node, d_node.transform.position, d_node.transform.rotation);
 
                 newONode.transform.localScale = new Vector3(0.02137621f, 0.02137621f, 0.02137621f);
-                //newDNode.transform.localScale = new Vector3(0.02137621f, 0.02137621f, 0.02137621f);
+                newDNode.transform.localScale = new Vector3(0.02137621f, 0.02137621f, 0.02137621f);
 
                 newONode.transform.parent = smallUS.transform;
-                //newDNode.transform.parent = smallUS.transform;
+                newDNode.transform.parent = smallUS.transform;
+
 
                 smallUS.transform.position = controllerPosition + new Vector3(0f, 0.5f, 0f);
                 smallUS.transform.localScale *= 0.2f;
                 smallUS.transform.rotation = Quaternion.Euler(-90f, 0, 0);
+            
+
 
 
                 copy_d_node = d_node.GetComponent<Node>().slic_code;
@@ -149,7 +155,7 @@ namespace VRTK.Examples
                
                 smallUS.AddComponent<checkLabel>().setLabel("Arc");
 
-                smallUS.AddComponent<volumeInfo>().activate(volume, FloatingTextPrefab, textPos);
+                smallUS.AddComponent<volumeInfo>().activate(volume, FloatingTextPrefab, textPos, newONode.GetComponent<Node>().info, newDNode.GetComponent<Node>().info);
 
             }
         }

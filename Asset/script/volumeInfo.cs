@@ -10,11 +10,18 @@ public class volumeInfo : MonoBehaviour
     private GameObject textObject;
     private float volume;
     private GameObject textPos;
-    public void activate(float volume, GameObject FloatingTextPrefab, GameObject textPos)
+
+    string o_info;
+    string d_info;
+
+    public void activate(float volume, GameObject FloatingTextPrefab, GameObject textPos,  string o_info, string d_info)
     {
         this.FloatingTextPrefab = FloatingTextPrefab;
         this.volume = volume;
         this.textPos = textPos;
+
+        this.o_info = o_info;
+        this.d_info = d_info;
         showFloatingText();
     }
 
@@ -23,8 +30,8 @@ public class volumeInfo : MonoBehaviour
         textObject = Instantiate(FloatingTextPrefab, transform.position, Quaternion.identity);
         //textObject.transform.SetParent(null);
         textObject.transform.position = textPos.transform.position;
-        textObject.GetComponent<TextMesh>().text = "Arc volume: " + volume;// replace with TextAsset text_file
-        textObject.GetComponent<TextMesh>().color = Color.black;
+        textObject.GetComponent<TextMesh>().text = "\n\n" + "Arc volume: " + volume + "\n\nOrigin Information\n"+ o_info + "\nDestination Information\n" + d_info;// replace with TextAsset text_file
+        textObject.GetComponent<TextMesh>().color = Color.grey;
         textObject.GetComponent<TextMesh>().fontSize = 100;
         textObject.transform.localScale = new Vector3(0.007f, 0.007f, 0.007f);
         textObject.transform.SetParent(transform);  //follows state-map rotation
