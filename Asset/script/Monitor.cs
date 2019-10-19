@@ -24,26 +24,24 @@ namespace VRTK.Examples
         private string copy_o_node = null;
         public GameObject origin_text = null;
         public GameObject destination_text = null;
+        private GameObject colorLegend = null; 
 
         private float volume;
         private GameObject textPos;
-        
-
-
-
-
 
         public void activate(Dictionary<string, GameObject> slic_nodeInfo_Pair, Dictionary<string, List<string>> path_info)
         {
             this.slic_nodeInfo_Pair = slic_nodeInfo_Pair;
             this.path_info = path_info;
+            colorLegend = GameObject.Find("/Colour_legend");
+            colorLegend.SetActive(false);
         }
 
         public void drawArcs(GameObject cor_node, List<Arc> destinations)
         {
+            colorLegend.SetActive(true);
             if (destinations != null)
             {
-
                 foreach (Arc a_arc in destinations)
                 {
                     string d = a_arc.d;

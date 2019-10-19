@@ -7,7 +7,7 @@ public class Instruction : MonoBehaviour
 {
    
     public string[] instructions = {"Select origin state", "1) Select origin node or\n2) Re-select origin state", "1) Select destination state\n2) Re-select origin node",
-    "1) Select destination node\n2) Re-select destination state", "1) Click Grip button to show information\n2) Re-select destination node"};
+    "1) Select destination node\n2) Re-select destination state", "1) Click Grip button to show information\n2) Re-select destination node", ""};
 
     // Start is called before the first frame update
     // Update is called once per frame

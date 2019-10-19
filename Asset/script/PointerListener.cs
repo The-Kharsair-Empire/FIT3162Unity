@@ -136,6 +136,7 @@
                     else if (targetLabel == "Arc")
                     {
                         GlobalMonitor.clearArc();
+                        GlobalMonitor.clearArc();
                     }
 
                     Transform US = GameObject.Find("/America").transform;
