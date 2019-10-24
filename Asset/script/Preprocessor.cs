@@ -2,35 +2,45 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
-//using statePivotPos;
 using nodeTemplate;
 using ArcTemplate;
 using VRTK.Examples;
 
 //attach this to a empty gameobject named proprocessor: parent of all country nodes;
 
+///////////////////////////////////////////////////////////////////////////////////////////
+//FileName: Preprocessor.cs
+//FileType: visual C# Source File
+//Author: Stark C (Jiayuan Chang)
+//Description: This is the script that reads in all the data,  preprocesses them and stores them into required data structure such as dictionary.
+//Last modified on: 23/10/19
+//////////////////////////////////////////////////////////////////////////////////////////
+
+
 public class Preprocessor : MonoBehaviour
 {
-    public TextAsset node_data; //lambert with state and slic info, node_info.csv
-    public TextAsset arc_data; //arc.csv
-    public GameObject nodePrefab;
-    public Transform spawnPos_o;
-    public Transform spawnPos_d;
+    public TextAsset node_data; //node_info.csv
+    public TextAsset arc_data; //arc_info.csv
+    public GameObject nodePrefab; //this is the prefab of the node (individual facitlity) gameobejct used to generate the node on the country.
+    public Transform spawnPos_o; //position where the origin state map pop-up comes out
+    public Transform spawnPos_d; //position where the destination state map pop-up comes out
+
+	public Dictionary<string, List<GameObject>> stateAndItsNodes; //a dictionary of key-values pairs of state name in string and all the nodes gameobjects in that state
+    public Dictionary<string, GameObject> slic_nodeInfo_Pair;//dictionary of one to one key-value pair of slic code in string and the corresponding node gameobject.
     
-    public Dictionary<string, List<GameObject>> stateAndItsNodes;
-    public Dictionary<string, GameObject> slic_nodeInfo_Pair;//country
-    
 
-    public Dictionary<string, List<Arc>> arc_info;
-    public Dictionary<string, List<string>> path_info;
+    public Dictionary<string, List<Arc>> arc_info;  // a dictionary of pairs of slic code in string and a list of information of all the arcs going from this slic node
+    public Dictionary<string, List<string>> path_info; //a dictionary of paris of a OD slic code string (origin slic - destination slic) and all the internal nodes that it travels through on its path.
 
-    public GameObject instructionCanvas;
-    private Instruction instructionScript;
+    public GameObject instructionCanvas; // instruction board game object
+    private Instruction instructionScript; // instruction script, needed to initialize the text on the instruction board.
 
-    public GameObject FloatingTextPrefab;
+    public GameObject FloatingTextPrefab; //text pop-up prefab, need to be passed the the sub module
 
-    //Dictionary<string, Vector3> statePos;
-    // Start is called before the first frame update
+
+    /// <summary>
+	///called at the start of the program, does all the data preprocessing, and stores them into data structures. initialize other component such as monitor, stateInteraction.
+	/// </summary>
     void Start()
     {
         string[] rows = node_data.text.Split(new char[] { '\n' });
@@ -81,21 +91,16 @@ public class Preprocessor : MonoBehaviour
         }
 
 
-        transform.position = new Vector3(-4.97f, 1.43f, -2.9608f);
+        transform.position = new Vector3(-4.97f, 1.43f, -2.9608f); //adjust the node on the country map so the nodes are in the right positions
         transform.rotation = Quaternion.Euler(0, 180f, 49.105f);
         transform.localScale = new Vector3(0.01799799f, 0.01812159f, 0.01773624f);
-
-        //transform.position = new Vector3(-21.22162f, 2.137f, -14.93f);
-        //transform.rotation = Quaternion.Euler(0, 180f, 49.105f);
-        //transform.localScale = new Vector3(0.07155591f, 0.0720473f, 0.07051525f);
-
 
         while (transform.childCount > 0)
         {
             Transform a_node = transform.GetChild(0);
             string state_name = a_node.GetComponent<Node>().slic_state;
 
-            a_node.parent = US.Find(state_name.Replace("\"", ""));
+            a_node.parent = US.Find(state_name.Replace("\"", "")); // assign the state gameobjects as parents of their corresponding nodes in that state
         }
         
      
@@ -103,7 +108,7 @@ public class Preprocessor : MonoBehaviour
         string[] arcs = arc_data.text.Split(new char[] { '\n' });
         string[] arc;
 
-        for(int i = 1; i < arcs.Length - 1; i++)
+        for(int i = 1; i < arcs.Length - 1; i++) //read in all arc info and store into data structure
         {
             arc = arcs[i].Split(new char[] { ',' });
             List<Arc> destList;
@@ -122,7 +127,7 @@ public class Preprocessor : MonoBehaviour
             string OD = arc[0].Replace("\"", "") + "-" + arc[1].Replace("\"", "");
 
             List<string> pth = new List<string>(); 
-            for (int j = 6; j < arc.Length; j++)
+            for (int j = 6; j < arc.Length; j++) //read in internal paths
             {
                 if (arc[j].Replace("\"", "") != "NA") {
                     pth.Add(arc[j].Replace("\"", ""));
@@ -132,46 +137,14 @@ public class Preprocessor : MonoBehaviour
             path_info.Add(OD, pth);
         }
 
-        //State_pos stateInfoManager = new State_pos();
-        //stateInfoManager.getStatePos();
-        //List<string> stateList = stateInfoManager.stateList;
-        gameObject.GetComponent<Monitor>().activate(slic_nodeInfo_Pair, path_info);
+        gameObject.GetComponent<Monitor>().activate(slic_nodeInfo_Pair, path_info);//activate the monitor script
 
         foreach(Transform each_state in US)
         {
-            each_state.gameObject.AddComponent<StateInteraction>().activateStateInteraction(gameObject, spawnPos_o, spawnPos_d, arc_info, slic_nodeInfo_Pair, instructionScript);
-
+            each_state.gameObject.AddComponent<StateInteraction>().activateStateInteraction(gameObject, spawnPos_o, spawnPos_d, arc_info, slic_nodeInfo_Pair, instructionScript); 
+            //apply stateInteraction script to each state game object.
             //add extra component to this state
         }
-
-        //gameObject.GetComponent<checkData>().activate(slic_nodeInfo_Pair, arc_info);
-
-
-        //statePos = stateInfoManager.statePos;
-        //string stateName;
-        //Vector3 stateVector3;
-        //List<GameObject> nodes;
-        //Transform US = GameObject.Find("/America").transform;
-
-        //foreach(KeyValuePair<string, Vector3> i in statePos) //calculate pos difference between state pivot and its nodes' pivots
-        //{
-        //    stateName = i.Key;
-        //    stateVector3 = i.Value;
-        //    if (stateAndItsNodes.TryGetValue(stateName, out nodes))
-        //    {
-        //        foreach (GameObject n in nodes)
-        //        {
-        //            Vector3 diff = n.transform.position - stateVector3;
-        //            n.GetComponent<NodeInfoContainer>().getNodeInfo().distFromStatePivot = diff;
-        //        }
-        //    }
-        //    else //test, del later
-        //    {
-        //        throw new System.Exception("a state map has no node list");
-        //    }
-
-        //    US.Find(stateName); //continue find each state and attach stateinteraction script to them
-        //}
 
 
     }

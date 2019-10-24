@@ -5,49 +5,56 @@ using ArcTemplate;
 using nodeTemplate;
 using VRTK.Examples;
 
+///////////////////////////////////////////////////////////////////////////////////////////
+//FileName: DNodeInteraction.cs
+//FileType: visual C# Source File
+//Author: Stark C
+//Description: This applies functionalities to the Node on the Destination state map pop-up.
+//Last modified on: 23/10/19
+//////////////////////////////////////////////////////////////////////////////////////////
+
+
 public class DNodeInteraction : MonoBehaviour
 {
-    // Start is called before the first frame update
 
-    // Update is called once per frame
+    private Dictionary<string, GameObject> slic_nodeInfo_Pair; // A dictionary that contains key-value pairs of SLIC Code in String and the reference to the Actual GameObject of the Node on the map, will be needed later to find the game object using its slic code.
+    private GameObject Global; // A empty game object that stores the monitor.cs which stores some global variables and functions
+    public Instruction inScript; //Instruction.cs that store the instruction text, will change it based on the current program state.
 
 
-    private Dictionary<string, GameObject> slic_nodeInfo_Pair;
-    private GameObject Global;
-    public Instruction inScript;
-
+    /// <summary>
+	/// This is the function called when stateInteraction applies this script to each node on the destination state pop-up, it acts as the initializing funcion
+	/// of this script, receiving and setting the information needed later for the bezier curve
+	/// </summary>
+	/// <param name="slic_node"></param>
+	/// <param name="Global"></param>
+	/// <param name="inScript"></param>
     public void activateNodeInteraction(Dictionary<string, GameObject> slic_node, GameObject Global, Instruction inScript)
     {
 
         this.slic_nodeInfo_Pair = slic_node;
         this.Global = Global;
-        gameObject.AddComponent<checkLabel>().setLabel("DStateNode");
-        //Debug.Log(this.slic_nodeInfo_Pair);
-        //Debug.Log(slic_nodeInfo_Pair);
+        gameObject.AddComponent<checkLabel>().setLabel("DStateNode"); //apply a label for pointerlistener to distinguish the object
+
         this.inScript = inScript;
     }
 
+    /// <summary>
+	/// determine what happens when you click on the a destination node, mainly hides all the arcs from the selected origin except the one that is coming to this clicked destination node
+	/// </summary>
     public void myInteract()
     {
-        inScript.changeText(4);
+        inScript.changeText(4);//change text on the instruction board after selecting the destination node.
         GameObject o_node = Global.GetComponent<Monitor>().o_node;
-        //GameObject last_d_node = preprocessor.GetComponent<Preprocessor>().d_node;
 
 
         GameObject cor_node = gameObject.GetComponent<Node>().cor_node;
-        //cor_node.transform.localScale += new Vector3(1f, 1f, 1f);
-        //preprocessor.GetComponent<Preprocessor>().o_node.transform.localScale -= new Vector3(1f, 1f, 1f);
         Global.GetComponent<Monitor>().d_node = cor_node;
         GameObject d_node = Global.GetComponent<Monitor>().d_node;
-        //are we hightlighting it on state map?
 
-        //gameObject.GetComponent<MeshRenderer>().enabled = true; //highlighting instead if enabing meshrenderer // state map? should already by visible --> is this supposed to highlight it?
         string d_slic = d_node.GetComponent<Node>().slic_code;
-        foreach (Transform bezierContainer in o_node.transform)
+        foreach (Transform bezierContainer in o_node.transform) //hide all arcs except the arc coming to this node.
         {
-            //Debug.Log(bezierContainer.name);
-            //Debug.Log(d_slic);
-            //Debug.Log(bezierContainer.name == d_slic)
 
             if (bezierContainer.name != d_slic)
             {
@@ -58,44 +65,6 @@ public class DNodeInteraction : MonoBehaviour
                 bezierContainer.GetComponent<bezier>().turnOn();
             }
         }
-
-
-
-        // get destination nodes and turn on their renderers (on country map)
-        // add bezier curves from origin to destinations on country map
-
-
-
-
-        //void Update()
-        //{
-        //    if (Input.GetMouseButton(0))
-        //    {
-        //        if (isOrigin)
-        //        {
-        //            GameObject cor_node_on_country = transform.GetComponent<Node>().cor_node;
-        //            GameObject.Find("proprocessor").GetComponent<Preprocessor>().o_node = cor_node_on_country;
-
-
-        //            //attach line renderer to cor_node_on_country
-        //            //pass info
-        //            //GameObject i = gameObject.GetComponent<NodeInfoContainer>().getNodeInfo().cor_node;
-        //        }
-
-        //        else
-        //        {
-
-        //            GameObject cor_node_on_country = transform.GetComponent<Node>().cor_node;
-        //            GameObject.Find("proprocessor").GetComponent<Preprocessor>().d_node = cor_node_on_country;
-
-        //            //find origin node in preprocessor: o_node
-        //            //using the line renderer in o_node, pass the pos of d_node, draw line
-        //        }
-
-
-        //    }
-        //}
-
 
 
 

@@ -1,4 +1,10 @@
-
+///////////////////////////////////////////////////////////////////////////////////////////
+//FileName: StateInteraction.cs
+//FileType: visual C# Source File
+//Author: Stark C.
+//Description: applies functionalities to states, on both country map and on pop-up states
+//Last modified on: 23/10/19
+//////////////////////////////////////////////////////////////////////////////////////////
 
 namespace VRTK.Examples
 {
@@ -9,25 +15,26 @@ namespace VRTK.Examples
     using nodeTemplate;
     using ArcTemplate;
 
-    // checkLabel???
-    //children list of state & country map
-
-
     public class StateInteraction : VRTK_InteractableObject
     {
-        //private aa rotator;
+        public Transform spawnPos_o, spawnPos_d; // positions that origin and destination states will spawn at by default
+        private bool isOrigin;  // determines whether current state pop-up is origin or destination
+        public Dictionary<string, List<Arc>> arc_info;  // dictionary containing all information of the arcs that come from state this script is attached to
+        public Dictionary<string, GameObject> slic_nodeInfo_Pair; // dictionary containing list of SLIC, gameObject pairs where gameObject is node on country map
+        public GameObject Global; // empty game object that stores the monitor script
+        public string state_name;   // name of state this script is attached to 
+        public bool interactable;   // determines whether this state is interactable
+        public Instruction inScript;    // instruction script that will update the text on the instruction panel as the user interacts with the program
 
-        
-
-        public Transform spawnPos_o, spawnPos_d;
-        private bool isOrigin;
-        public Dictionary<string, List<Arc>> arc_info;
-        public Dictionary<string, GameObject> slic_nodeInfo_Pair;
-        public GameObject Global;
-        public string state_name;
-        public bool interactable;
-        public Instruction inScript;
-
+        /// <summary>
+        /// activates this script when it is attached to state objects
+        /// </summary>
+        /// <param name="Global"> empty game object that stores the monitor script. </param>
+        /// <param name="spawnPos_o"> default spawn position of origin state pop-up. </param>
+        /// <param name="spawnPos_d"> default spawn position of destination state pop-up. </param>
+        /// <param name="arc_info"> dicitonary of info of arcs starting in state this script is attached to. </param>
+        /// <param name="slic_nodeInfo_Pair"> dictionary containing list of SLIC, gameObject pairs where gameObject is node on country map. </param>
+        /// <param name="inScript"> instruction script that will update the text on the instruction panel as the user interacts with the program. </param>
         public void activateStateInteraction(GameObject Global, Transform spawnPos_o, Transform spawnPos_d, Dictionary<string, List<Arc>> arc_info, Dictionary<string, GameObject> slic_nodeInfo_Pair, Instruction inScript)
         {
             this.spawnPos_o = spawnPos_o;
@@ -41,7 +48,9 @@ namespace VRTK.Examples
             this.inScript = inScript;
         }
 
-
+        /// <summary>
+        /// determines what happens when you click on a state
+        /// </summary>
         public void myInteract()
         {
             GameObject o_state = Global.GetComponent<Monitor>().origin;
@@ -49,9 +58,7 @@ namespace VRTK.Examples
             GameObject o_node = Global.GetComponent<Monitor>().o_node;
             GameObject d_node = Global.GetComponent<Monitor>().d_node;
 
-
-          
-
+            // if this is the first state pop-up (origin state)
             if (o_node == null)
             {
                 inScript.changeText(1);
@@ -60,27 +67,22 @@ namespace VRTK.Examples
                 {
                     Destroy(o_state);
                 }
-                GameObject O = Instantiate(gameObject, spawnPos_o.position, Quaternion.identity); //change rotation if needed;
+                GameObject O = Instantiate(gameObject, spawnPos_o.position, Quaternion.identity); 
                 O.transform.localScale = transform.localScale;
                 O.transform.localScale *= transform.parent.localScale.x * 3;
                 O.transform.rotation = Quaternion.Euler(0f, -50f, 0f);
                 Destroy(O.GetComponent<StateInteraction>());
                 Global.GetComponent<Monitor>().origin = O;
 
-                 //where is the highlighting features in the statemap - assuming it is the last child in the hierarchy
+                int childnum = O.transform.childCount; 
 
-                int childnum = O.transform.childCount; //make sure there are only nodes in their children hierachy of both state of the country map and its corresponding state map
-
+                // create nodes on the pop-up
                 for (int i = 0; i < childnum-1; ++i)
                 {
                     Transform child = O.transform.GetChild(i);
-                    child.gameObject.GetComponent<MeshRenderer>().enabled = true; //remember to setInactive when destroying the state.
-  
+                    child.gameObject.GetComponent<MeshRenderer>().enabled = true; 
                     child.GetComponent<Node>().cor_node = transform.GetChild(i).gameObject;
-                    //transform.GetChild(i).GetComponent<MeshRenderer>().enabled = true;
-                    child.localScale /= 1.5f; //resize node to make it bigger, adjust it
-                                                                 //child.gameObject.AddComponent<>(); add interaction component, rigid body etc.
-                                                                 //add node interaction script
+                    child.localScale /= 1.5f; // node size
 
                     child.gameObject.AddComponent<ONodeInteraction>().activateNodeInteraction(slic_nodeInfo_Pair, Global, inScript);
                     List<Arc> destinations;
@@ -97,6 +99,8 @@ namespace VRTK.Examples
                 O.GetComponent<MeshCollider>().convex = true;
                 myHighlight();
             }
+
+            // working on second state pop-up (destination state)
             else if(d_node == null)
             {
                 inScript.changeText(3);
@@ -105,7 +109,7 @@ namespace VRTK.Examples
                     Destroy(d_state);
                 }
                 Global.GetComponent<Monitor>().o_node.SetActive(false);
-                GameObject D = Instantiate(gameObject, spawnPos_d.position, Quaternion.identity); //change rotation if needed;
+                GameObject D = Instantiate(gameObject, spawnPos_d.position, Quaternion.identity); 
                 D.transform.localScale = transform.localScale;
                 D.transform.localScale *= transform.parent.localScale.x * 3;
                 D.transform.rotation = Quaternion.Euler(0f, 50f, 0f);
@@ -114,23 +118,14 @@ namespace VRTK.Examples
 
                 Global.GetComponent<Monitor>().o_node.SetActive(true);
 
-                //where is the highlighting features in the statemap - assuming it is the last child in the hierarchy
+                int childnum = D.transform.childCount; 
 
-                int childnum = D.transform.childCount; //make sure there are only nodes in their children hierachy of both state of the country map and its corresponding state map
-
+                // creating nodes on pop-up map
                 for (int i = 0; i < childnum - 1; ++i)
                 {
                     Transform child = D.transform.GetChild(i);
-                    
-                    
-                     //remember to setInactive when destroying the state.
-
                     child.GetComponent<Node>().cor_node = transform.GetChild(i).gameObject;
-                    //transform.GetChild(i).GetComponent<MeshRenderer>().enabled = true;
-                    child.localScale /= 1.5f; //resize node to make it bigger, adjust it
-                                                                 //child.gameObject.AddComponent<>(); add interaction component, rigid body etc.
-                                                                 //add node interaction script
-
+                    child.localScale /= 1.5f; // node size
                     child.gameObject.AddComponent<DNodeInteraction>().activateNodeInteraction(slic_nodeInfo_Pair, Global, inScript);
                    
                 }
@@ -143,54 +138,12 @@ namespace VRTK.Examples
                 myHighlight();
             }
             
-            //if (myState == null)
-            //{
-            //    myState = Instantiate(gameObject, new Vector3(5, 5, 0), Quaternion.identity);
-            //    Destroy(myState.GetComponent<stateTest>());
-            //    myState.GetComponent<checkLabel>().setLabel("State");
-            //    Destroy(myState.transform.GetChild(myState.transform.childCount - 1).gameObject);
-
-            //    Destroy(myState.GetComponent<VRTK_OutlineObjectCopyHighlighter>());
-            //    //myState.AddComponent<aa>();
-            //    myState.AddComponent<aa>().visibility();
-            //    myState.AddComponent<VRTK_InteractableObject>().isGrabbable = true;
-            //    myState.GetComponent<MeshCollider>().convex = true;
-            //    myHighlight();
-            //}
-            //else
-            //{
-            //    //myState.GetComponent<aa>().visibility();
-            //    Destroy(myState);
-            //    myState = null;
-            //    myHighlight();
-            //}
         }
 
-        //public override void StartUsing(VRTK_InteractUse currentUsingObject = null)
-        //{
-        //    base.StartUsing(currentUsingObject);
-        //    myState = Instantiate(gameObject, new Vector3(0, 5, 0), Quaternion.identity);
-        //    myState.AddComponent<checkLabel>().setLabel("State");
-        //    myState.AddComponent<aa>().visibility();
-        //    //if (rotator == null)
-        //    //    rotator = GameObject.Find("TheCube").GetComponent<aa>();
-        //    //            rotator.Going = !rotator.Going;
-        //    myHighlight();
-
-        //}
-
-        //public override void StopUsing(VRTK_InteractUse previousUsingObject = null, bool resetUsingObjectState = true)
-        //{
-        //    base.StopUsing(previousUsingObject, resetUsingObjectState);
-        //    //if (rotator == null)
-        //    //    rotator = GameObject.Find("TheCube").GetComponent<aa>();
-        //    //            rotator.Going = !rotator.Going;
-        //    myState.GetComponent<aa>().visibility();
-        //    Destroy(myState);
-        //    myState = null;
-        //    myHighlight();
-        //}
-
+        
+        /// <summary>
+        /// highlights hovered state on the counrty map
+        /// </summary>
         protected void myHighlight()
         {
             VRTK_BaseHighlighter highligher = transform.GetComponentInChildren<VRTK_BaseHighlighter>();
@@ -198,7 +151,9 @@ namespace VRTK.Examples
             highligher.Highlight(Color.yellow);
         }
 
-
+        /// <summary>
+        /// implemented by VRTK library
+        /// </summary>
         protected override void Update()
         {
             base.Update();
@@ -206,100 +161,3 @@ namespace VRTK.Examples
     }
 }
 
-//using System.Collections;
-//using System.Collections.Generic;
-//using UnityEngine;
-//using nodetemplate;
-//using arctemplate;
-
-//public class StateInteraction : MonoBehaviour
-//{
-//    public Transform spawnPos_o, spawnPos_d;
-//    private bool isOrigin;
-//    public Dictionary<string, List<Arc>> arc_info;
-//    public Dictionary<string, GameObject> slic_nodeInfo_Pair;
-//    public GameObject preprocessor;
-
-//    public void activateStateInteraction(GameObject preprocessor,Transform spawnPos_o, Transform spawnPos_d, Dictionary<string, List<Arc>> arc_info, Dictionary<string, GameObject> slic_nodeInfo_Pair)
-//    {
-//        this.spawnPos_o = spawnPos_o;
-//        this.spawnPos_d = spawnPos_d;
-//        this.arc_info = arc_info;
-//        this.preprocessor = preprocessor;
-//    }
-
-//    public void OnMouseDown()
-//    {
-//        GameObject origin = preprocessor.GetComponent<Preprocessor>().origin;
-//        if (origin == null) //replace if there existed a state map
-//        {
-//            Destroy(origin);
-//        }
-//        GameObject O = Instantiate(gameObject, spawnPos_o.position, Quaternion.identity); //change rotation if needed
-
-//        preprocessor.GetComponent<Preprocessor>().origin = O;
-
-//        Destroy(O.GetComponent<StateInteraction>()); //remove stateClick component in the state map
-
-
-//        int childnum = transform.childCount; //make sure there are only nodes in their children hierachy of both state of the country map and its corresponding state map
-
-//        for (int i = 0; i < childnum; ++i)
-//        {
-//            Transform child = O.transform.GetChild(i);
-//            child.GetComponent<NodeInfoContainer>().getNodeInfo().cor_node = transform.GetChild(i).gameObject;
-//            child.localScale += new Vector3(0.1f, 0.1f, 0.1f); //resize node to make it bigger, adjust it
-//                                                               //child.gameObject.AddComponent<>(); add interaction component, rigid body etc.
-//                                                               //add node interaction script
-//            child.gameObject.AddComponent<NodeInteraction>().Activate(0, slic_nodeInfo_Pair);
-//            List<Arc> destinations;
-//            if (arc_info.TryGetValue(child.GetComponent<NodeInfoContainer>().getNodeInfo().slic_code, out destinations))
-//            {
-//                child.gameObject.AddComponent<NodeInteraction>().addDestInfo(destinations);
-//            }
-//        }
-//    }
-
-//    public void Update()
-//    {
-
-
-
-
-
-//if (Input.GetMouseButton(1)) //right controller
-//{
-
-//    this.isOrigin = false;
-
-//    GameObject dest = GameObject.Find("proprocessor").GetComponent<Preprocessor>().destination;
-//    if (dest == null) //replace if there existed a state map
-//    {
-//        Destroy(dest);
-//    }
-//    GameObject D = Instantiate(gameObject, spawnPos_d.position, Quaternion.identity); //change rotation if needed
-
-//    GameObject.Find("proprocessor").GetComponent<Preprocessor>().destination = D;
-
-//    Destroy(D.GetComponent<StateInteraction>()); //remove stateClick component in the state map
-
-
-//    int childnum = transform.childCount; //make sure there are only nodes in their children hierachy of both state of the country map and its corresponding state map
-
-//    for (int i = 0; i < childnum; ++i)
-//    {
-//        Transform child = D.transform.GetChild(i);
-//        child.GetComponent<NodeInfoContainer>().getNodeInfo().cor_node = transform.GetChild(i).gameObject;
-//        child.localScale += new Vector3(0.1f, 0.1f, 0.1f); //resize node to make it bigger, adjust it
-//        //child.gameObject.AddComponent<>(); add interaction component, rigid body etc.
-//        //add node interaction script
-//        child.gameObject.AddComponent<NodeInteraction>().Activate(1, slic_nodeInfo_Pair);
-
-
-//    }
-//}
-//    }
-
-
-
-//}
