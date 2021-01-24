@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FileName: PointerListener.cs
 // FileType: C#
-// Author: Hardy Pei
 // Description: This file implements the listener on the controller together with its pointer to listen to user inputs
 //              and call the corresponding interaction functions attached to the target of the pointer.
 // Last modified on: 23/10/2019

@@ -11,7 +11,6 @@ using VRTK.Examples;
 ///////////////////////////////////////////////////////////////////////////////////////////
 //FileName: Preprocessor.cs
 //FileType: visual C# Source File
-//Author: Stark C (Jiayuan Chang)
 //Description: This is the script that reads in all the data,  preprocesses them and stores them into required data structure such as dictionary.
 //Last modified on: 23/10/19
 //////////////////////////////////////////////////////////////////////////////////////////
