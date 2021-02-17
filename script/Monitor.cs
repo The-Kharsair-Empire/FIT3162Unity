@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FileName: Monitor.cs
 // FileType: C#
-// Author: Stark (Jiayuan Chang)
 // Description: This file is attached to an object called 'Global' which acts as the monitor of the whole system. It provides 
 //              each unit in the system with multiple functions and global variables.
 // Last modified on: 23/10/2019
