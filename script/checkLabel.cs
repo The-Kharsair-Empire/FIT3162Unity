@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FileName: PointerListener.cs
 // FileType: C#
-// Author: Hardy Pei
 // Description: This file defines an attribute 'label' for objects as the identifiers and provides them with getter and setter 
 //              functionalities.
 // Last modified on: 23/10/2019

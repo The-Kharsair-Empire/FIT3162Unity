@@ -1,7 +1,7 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////
 //FileName: bezier.cs
 //FileType: visual C# Source File
-//Author: Daniel S
+
 //Description: This program creates curves based on the quadratic bezier function,
 //              as unity only works with straight lines it turns 50 straight lines
 //              into a curve based on the positions of 2 points (origin and destination)
